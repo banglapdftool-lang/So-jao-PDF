@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>pdfsajao – Free Online PDF Tools</title>
+
+  <meta name="description" content="pdfsajao: Convert, compress, merge, split and manage PDF files easily — free, fast, and works inside your browser." />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#2563EB" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <style>
+    :root{
+      /* Blue premium palette */
+      --accent: #3B82F6;
+      --accent2:#2563EB;
+      --accentSoft: rgba(59,130,246,0.18);
+
+      --bg: #070A12;
+      --bg2:#0B1020;
+
+      --surface: rgba(255,255,255,0.07);
+      --surface2: rgba(255,255,255,0.10);
+      --border: rgba(255,255,255,0.14);
+
+      --text: #F5F7FF;
+      --muted: rgba(245,247,255,0.72);
+
+      --success: #22C55E;
+      --warning: #FBBF24;
+
+      --shadow: 0 18px 50px rgba(0,0,0,0.45);
+      --radius: 18px;
+
+      --container: 1180px;
+    }
+
+        [data-theme="light"]{
+      --bg: #F7F8FC;
+      --bg2:#FFFFFF;
+
+      --surface: rgba(10,14,30,0.05);
+      --surface2: rgba(10,14,30,0.07);
+      --border: rgba(10,14,30,0.12);
+
+      --text: #0B1220;
+      --muted: rgba(11,18,32,0.70);
+
+      --shadow: 0 18px 40px rgba(10,14,30,0.14);
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 14% 10%, var(--accentSoft), transparent 55%),
+        radial-gradient(900px 520px at 80% 25%, rgba(255,255,255,0.10), transparent 60%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ color: var(--accent2); text-decoration: underline; }
+
+    .container{
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 18px;
+    }
+
+    /* Header */
+    .header{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(0,0,0,0.20);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    [data-theme="light"] .header{ background: rgba(255,255,255,0.75); }
+
+    .header-row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+    }
+    .logo-text{
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dot{
+      display:inline-block;
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(59,130,246,0.14);
+      transform: translateY(-2px);
+      flex: 0 0 auto;
+    }
+    .tag{
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .pill{
+      display:flex;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .pill button{
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      min-height: 40px;
+      opacity: .92;
+      transition: .18s ease;
+      line-height: 1;
+    }
+        .pill button:hover{ background: var(--surface2); opacity: 1; }
+    .pill button.active{ background: var(--accent); color:#fff; opacity:1; }
+    .pill button.active:hover{ background: var(--accent2); }
+    .pill button:focus-visible{
+      outline: 2px solid rgba(59,130,246,0.55);
+      outline-offset: 2px;
+    }
+
+    .icon-btn{
+      width: 44px;
+      height: 44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .icon-btn:hover{ background: var(--surface2); transform: translateY(-1px); }
+    .icon-btn:active{ transform: translateY(0); }
+    .icon-btn i{ font-size: 16px; opacity: .95; }
+
+    /* Hero */
+    .hero{
+      padding: 38px 0 10px;
+      text-align: center;
+    }
+    .hero h1{
+      margin: 0 0 10px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.12;
+      letter-spacing: .2px;
+    }
+    .hero .accent{ color: var(--accent); }
+    .hero p{
+      margin: 0 auto;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: clamp(14px, 2.2vw, 18px);
+      line-height: 1.75;
+    }
+
+    .hero-ctas{
+      margin-top: 18px;
+      display:flex;
+      justify-content:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 600;
+      min-height: 44px;
+      transition: .18s ease;
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .btn:hover{ background: var(--surface2); transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+    .btn i{ opacity: .95; }
+
+    .btn-primary{
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      border-color: rgba(59,130,246,0.55);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(59,130,246,0.22);
+    }
+    .btn-primary:hover{
+      filter: brightness(1.03);
+      box-shadow: 0 14px 36px rgba(59,130,246,0.28);
+    }
+
+    .trust{
+      margin-top: 18px;
+      display:flex;
+      justify-content:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .trust .titem{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .trust .titem i{ color: var(--success); }
+
+    /* Search */
+    .search-wrap{
+      margin: 18px auto 0;
+      max-width: 880px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:center;
+      }
+        .search{
+      flex: 1 1 420px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 10px 12px;
+      min-height: 48px;
+    }
+    .search i{ opacity: .9; }
+    .search input{
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .search input::placeholder{ color: rgba(245,247,255,0.55); }
+    [data-theme="light"] .search input::placeholder{ color: rgba(11,18,32,0.55); }
+
+    .chipbar{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content:center;
+    }
+    .chip{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      min-height: 40px;
+      font-size: 13px;
+      transition: .18s ease;
+    }
+    .chip:hover{ background: var(--surface2); }
+    .chip.active{
+      background: var(--accentSoft);
+      border-color: rgba(59,130,246,0.45);
+    }
+
+    .section{ padding: 22px 0 10px; }
+    .section-title{
+      text-align:center;
+      margin: 18px 0 14px;
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 800;
+    }
+    .section-title span{ color: var(--accent); }
+
+    .tool-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 0 auto;
+    }
+
+    .tool-card{
+      position: relative;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface2), var(--surface));
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      text-align:center;
+      cursor: pointer;
+      user-select:none;
+      overflow:hidden;
+      min-height: 160px;
+      transition: .18s ease;
+    }
+    .tool-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(260px 140px at 30% 0%, var(--accentSoft), transparent 60%);
+      opacity: .95;
+      pointer-events:none;
+    }
+    .tool-card:hover{
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: rgba(59,130,246,0.40);
+    }
+    .tool-card:active{ transform: translateY(-2px); }
+    .tool-card:focus-visible{
+      outline: 2px solid rgba(59,130,246,0.55);
+      outline-offset: 2px;
+    }
+
+    .tool-icon{
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      margin: 0 auto 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: var(--accentSoft);
+      border: 1px solid rgba(59,130,246,0.30);
+      position: relative;
+    }
+        .tool-icon i{ font-size: 22px; color: var(--text); }
+
+    .tool-card h3{
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: .2px;
+      position: relative;
+    }
+    .tool-card p{
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+      position: relative;
+    }
+
+    .badge{
+      position:absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+    }
+    .badge.popular{
+      border-color: rgba(251,191,36,0.45);
+      background: rgba(251,191,36,0.12);
+      color: var(--warning);
+    }
+
+    .info-grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .info{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .info h4{ margin: 0 0 6px; font-size: 16px; }
+    .info p{ margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    .faq{ max-width: 980px; margin: 0 auto; }
+    details{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+    summary{ cursor: pointer; font-weight: 700; }
+    details p{ margin: 8px 0 0; color: var(--muted); line-height: 1.7; font-size: 13px; }
+
+    footer{
+      margin-top: 26px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 22px 0;
+      text-align:center;
+    }
+    footer p{ margin:0; color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 520px){
+      .tag{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container header-row">
+      <div class="brand">
+        <span class="logo-text" id="brand-name">pdfsajao</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span class="tag" id="tagline">Fast • Private • Free</span>
+      </div>
+
+      <div class="header-actions">
+        <div class="pill" aria-label="Language switcher">
+          <button id="lang-en" class="active" aria-label="English">EN</button>
+          <button id="lang-hi" aria-label="Hindi">हिंदी</button>
+          <button id="lang-bn" aria-label="Bangla">বাংলা</button>
+        </div>
+
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fa fa-moon-o" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 id="hero-title">Fast & Secure <span class="accent">PDF</span> Tools</h1>
+      <p id="hero-subtitle">Convert, compress, merge, split and manage PDF files easily — 100% free and works inside your browser.</p>
+
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="jumpToTools()"><i class="fa fa-bolt"></i> <span id="cta-primary">Start with popular tools</span></button>
+        <a class="btn" href="#faq"><i class="fa fa-question-circle"></i> <span id="cta-secondary">FAQ</span></a>
+      </div>
+
+      <div class="trust" aria-label="Trust indicators">
+        <div class="titem"><i class="fa fa-check-circle"></i> <span id="trust-1">Works on mobile</span></div>
+        <div class="titem"><i class="fa fa-check-circle"></i> <span id="trust-2">No signup</span></div>
+        <div class="titem"><i class="fa fa-check-circle"></i> <span id="trust-3">Privacy-friendly</span></div>
+      </div>
+
+      <div class="search-wrap" aria-label="Tool search">
+        <div class="search">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <input id="tool-search" type="search" placeholder="Search tools (e.g., compress, merge, jpg)..." />
+        </div>
+
+        <div class="chipbar">
+          <button class="chip active" data-filter="all" id="chip-all">All</button>
+          <button class="chip" data-filter="convert" id="chip-convert">Convert</button>
+          <button class="chip" data-filter="organize" id="chip-organize">Organize</button>
+          <button class="chip" data-filter="secure" id="chip-secure">Secure</button>
+        </div>
+      </div>
+    </section>
+
+        <section class="section" id="tools">
+      <h2 class="section-title" id="tools-title"><span>PDF</span> Tools</h2>
+
+      <div class="tool-grid" id="tool-grid">
+        <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('compress-pdf')" onkeydown="cardKey(event,'compress-pdf')">
+          <span class="badge popular" id="badge-1">Popular</span>
+          <div class="tool-icon"><i class="fa fa-compress" aria-hidden="true"></i></div>
+          <h3 id="tool-compress">Compress PDF</h3>
+          <p id="desc-compress">Reduce PDF file size instantly.</p>
+        </div>
+
+        <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('merge-pdf')" onkeydown="cardKey(event,'merge-pdf')">
+          <span class="badge popular" id="badge-2">Popular</span>
+          <div class="tool-icon"><i class="fa fa-files-o" aria-hidden="true"></i></div>
+          <h3 id="tool-merge">Merge PDF</h3>
+          <p id="desc-merge">Combine multiple PDFs into one.</p>
+        </div>
+
+        <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('split-pdf')" onkeydown="cardKey(event,'split-pdf')">
+          <div class="tool-icon"><i class="fa fa-scissors" aria-hidden="true"></i></div>
+          <h3 id="tool-split">Split PDF</h3>
+          <p id="desc-split">Extract pages or split PDF files.</p>
+        </div>
+
+        <div class="tool-card" data-tags="convert" role="button" tabindex="0" onclick="openTool('pdf-to-jpg')" onkeydown="cardKey(event,'pdf-to-jpg')">
+          <div class="tool-icon"><i class="fa fa-file-image-o" aria-hidden="true"></i></div>
+          <h3 id="tool-pdf-jpg">PDF to JPG</h3>
+          <p id="desc-pdf-jpg">Convert PDF pages to JPG images.</p>
+        </div>
+
+        <div class="tool-card" data-tags="convert" role="button" tabindex="0" onclick="openTool('jpg-to-pdf')" onkeydown="cardKey(event,'jpg-to-pdf')">
+          <div class="tool-icon"><i class="fa fa-picture-o" aria-hidden="true"></i></div>
+          <h3 id="tool-jpg-pdf">JPG to PDF</h3>
+          <p id="desc-jpg-pdf">Convert JPG images into a PDF file.</p>
+        </div>
+
+        <div class="tool-card" data-tags="convert" role="button" tabindex="0" onclick="openTool('word-to-pdf')" onkeydown="cardKey(event,'word-to-pdf')">
+          <div class="tool-icon"><i class="fa fa-file-word-o" aria-hidden="true"></i></div>
+          <h3 id="tool-word-pdf">Word to PDF</h3>
+          <p id="desc-word-pdf">Convert DOCX to PDF easily.</p>
+        </div>
+
+        <div class="tool-card" data-tags="convert" role="button" tabindex="0" onclick="openTool('pdf-to-word')" onkeydown="cardKey(event,'pdf-to-word')">
+          <div class="tool-icon"><i class="fa fa-exchange" aria-hidden="true"></i></div>
+          <h3 id="tool-pdf-word">PDF to Word</h3>
+          <p id="desc-pdf-word">Convert PDF into editable Word.</p>
+        </div>
+
+        <div class="tool-card" data-tags="convert" role="button" tabindex="0" onclick="openTool('pdf-to-text')" onkeydown="cardKey(event,'pdf-to-text')">
+          <div class="tool-icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></div>
+          <h3 id="tool-pdf-text">PDF to Text</h3>
+          <p id="desc-pdf-text">Extract text from PDF files.</p>
+        </div>
+
+        <div class="tool-card" data-tags="secure" role="button" tabindex="0" onclick="openTool('protect-pdf')" onkeydown="cardKey(event,'protect-pdf')">
+          <div class="tool-icon"><i class="fa fa-lock" aria-hidden="true"></i></div>
+          <h3 id="tool-protect">Protect PDF</h3>
+          <p id="desc-protect">Add password encryption to PDF.</p>
+        </div>
+
+        <div class="tool-card" data-tags="secure" role="button" tabindex="0" onclick="openTool('unlock-pdf')" onkeydown="cardKey(event,'unlock-pdf')">
+          <div class="tool-icon"><i class="fa fa-unlock" aria-hidden="true"></i></div>
+          <h3 id="tool-unlock">Unlock PDF</h3>
+          <p id="desc-unlock">Remove password from PDF.</p>
+        </div>
+
+        <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('rotate-pdf')" onkeydown="cardKey(event,'rotate-pdf')">
+          <div class="tool-icon"><i class="fa fa-rotate-right" aria-hidden="true"></i></div>
+          <h3 id="tool-rotate">Rotate PDF</h3>
+          <p id="desc-rotate">Rotate PDF pages left or right.</p>
+        </div>
+
+        <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('organize-pdf')" onkeydown="cardKey(event,'organize-pdf')">
+          <div class="tool-icon"><i class="fa fa-th-large" aria-hidden="true"></i></div>
+          <h3 id="tool-organize">Organize PDF</h3>
+          <p id="desc-organize">Reorder or delete PDF pages.</p>
+        </div>
+
+                <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('pdf-viewer')" onkeydown="cardKey(event,'pdf-viewer')">
+          <div class="tool-icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></div>
+          <h3 id="tool-view">PDF Viewer</h3>
+          <p id="desc-view">Open & preview PDF files.</p>
+        </div>
+
+        <div class="tool-card" data-tags="organize" role="button" tabindex="0" onclick="openTool('extract-images')" onkeydown="cardKey(event,'extract-images')">
+          <div class="tool-icon"><i class="fa fa-photo" aria-hidden="true"></i></div>
+          <h3 id="tool-extract">Extract Images</h3>
+          <p id="desc-extract">Extract all images from PDF.</p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <h4 id="info-1-title">Private by design</h4>
+          <p id="info-1-desc">Tools are designed to work in the browser whenever possible. If a tool needs uploading later, it will be clearly shown.</p>
+        </div>
+        <div class="info">
+          <h4 id="info-2-title">Mobile-first experience</h4>
+          <p id="info-2-desc">Big buttons, clean layout, and fast loading for phones.</p>
+        </div>
+        <div class="info">
+          <h4 id="info-3-title">No signup</h4>
+          <p id="info-3-desc">Use tools instantly without creating an account.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section faq" id="faq">
+      <h2 class="section-title"><span>FAQ</span></h2>
+
+      <details>
+        <summary id="faq-q1">Is pdfsajao free?</summary>
+        <p id="faq-a1">Yes. The tools are free to use. Some tools may add premium features later, but free usage will remain.</p>
+      </details>
+
+      <details>
+        <summary id="faq-q2">Is it safe to upload PDFs?</summary>
+        <p id="faq-a2">When a tool runs in your browser, your files stay on your device. If a tool ever needs uploading, it will be clearly shown on that tool page.</p>
+      </details>
+
+      <details>
+        <summary id="faq-q3">Which tools are most popular?</summary>
+        <p id="faq-a3">Compress PDF and Merge PDF are typically the most used tools for everyday tasks.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p id="footer-text">© 2025 pdfsajao — Free Online PDF Tools</p>
+    </div>
+  </footer>
+
+  <script>
+    function openTool(tool) { window.location.href = tool + "/index.html"; }
+    function cardKey(e, tool){
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        openTool(tool);
+      }
+    }
+    function jumpToTools(){
+      document.getElementById("tools").scrollIntoView({behavior:"smooth"});
+    }
+
+    // Theme toggle
+    const themeBtn = document.getElementById("theme-toggle");
+    function setTheme(t){
+      document.documentElement.setAttribute("data-theme", t);
+      try{ localStorage.setItem("pdfsajao_theme", t); }catch(e){}
+      themeBtn.innerHTML = (t === "light")
+        ? '<i class="fa fa-moon-o" aria-hidden="true"></i>'
+        : '<i class="fa fa-sun-o" aria-hidden="true"></i>';
+    }
+    (function(){
+      let t = "dark";
+      try{ t = localStorage.getItem("pdfsajao_theme") || "dark"; }catch(e){}
+      setTheme(t);
+    })();
+    themeBtn.addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(cur === "dark" ? "light" : "dark");
+    });
+
+    // Search + filter
+    const searchInput = document.getElementById("tool-search");
+    const grid = document.getElementById("tool-grid");
+    const cards = Array.from(grid.querySelectorAll(".tool-card"));
+    const chips = Array.from(document.querySelectorAll(".chip"));
+    let activeFilter = "all";
+
+    function applyFilters(){
+      const q = (searchInput.value || "").trim().toLowerCase();
+      cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        const tags = (card.getAttribute("data-tags") || "").toLowerCase();
+        const matchText = !q || text.includes(q);
+        const matchTag = (activeFilter === "all") || tags.includes(activeFilter);
+        card.style.display = (matchText && matchTag) ? "" : "none";
+      });
+    }
+    searchInput.addEventListener("input", applyFilters);
+    chips.forEach(ch => {
+      ch.addEventListener("click", () => {
+        chips.forEach(x => x.classList.remove("active"));
+        ch.classList.add("active");
+        activeFilter = ch.getAttribute("data-filter");
+        applyFilters();
+      });
+    });
+
+    // Language strings
+    const brandName = "pdfsajao";
+    const langData = {
+      en: {
+        tagline: "Fast • Private • Free",
+        heroTitle: 'Fast & Secure <span class="accent">PDF</span> Tools',
+        heroSubtitle: "Convert, compress, merge, split and manage PDF files easily — 100% free and works inside your browser.",
+        ctaPrimary: "Start with popular tools",
+        ctaSecondary: "FAQ",
+        trust1: "Works on mobile",
+        trust2: "No signup",
+        trust3: "Privacy-friendly",
+        placeholder: "Search tools (e.g., compress, merge, jpg)...",
+        chipAll: "All", chipConvert: "Convert", chipOrganize: "Organize", chipSecure: "Secure",
+        toolsTitle: "<span>PDF</span> Tools",
+        compress: "Compress PDF", dCompress: "Reduce PDF file size instantly.",
+        merge: "Merge PDF", dMerge: "Combine multiple PDFs into one.",
+        split: "Split PDF", dSplit: "Extract pages or split PDF files.",
+        pdfJpg: "PDF to JPG", dPdfJpg: "Convert PDF pages to JPG images.",
+        jpgPdf: "JPG to PDF", dJpgPdf: "Convert JPG images into a PDF file.",
+        wordPdf: "Word to PDF", dWordPdf: "Convert DOCX to PDF easily.",
+        pdfWord: "PDF to Word", dPdfWord: "Convert PDF into editable Word.",
+        pdfText: "PDF to Text", dPdfText: "Extract text from PDF files.",
+        protect: "Protect PDF", dProtect: "Add password encryption to PDF.",
+        unlock: "Unlock PDF", dUnlock: "Remove password from PDF.",
+        rotate: "Rotate PDF", dRotate: "Rotate PDF pages left or right.",
+        organize: "Organize PDF", dOrganize: "Reorder or delete PDF pages.",
+        viewer: "PDF Viewer", dViewer: "Open & preview PDF files.",
+        extract: "Extract Images", dExtract: "Extract all images from PDF.",
+        info1t: "Private by design", info1d: "Tools are designed to work in the browser whenever possible. If a tool needs uploading later, it will be clearly shown.",
+        info2t: "Mobile-first experience", info2d: "Big buttons, clean layout, and fast loading for phones.",
+        info3t: "No signup", info3d: "Use tools instantly without creating an account.",
+        faqQ1: "Is pdfsajao free?", faqA1: "Yes. The tools are free to use. Some tools may add premium features later, but free usage will remain.",
+        faqQ2: "Is it safe to upload PDFs?", faqA2: "When a tool runs in your browser, your files stay on your device. If a tool ever needs uploading, it will be clearly shown on that tool page.",
+        faqQ3: "Which tools are most popular?", faqA3: "Compress PDF and Merge PDF are typically the most used tools for everyday tasks.",
+        footer: `© 2025 ${brandName} — Free Online PDF Tools`,
+        popular: "Popular"
+      },
+
+      hi: {
+        tagline: "तेज़ • प्राइवेट • फ्री",
+        heroTitle: 'तेज़ और सुरक्षित <span class="accent">PDF</span> टूल',
+        heroSubtitle: "कनवर्ट, कम्प्रेस, मर्ज, स्प्लिट और PDF फाइल्स मैनेज करें — 100% फ्री और ब्राउज़र में चलता है।",
+        ctaPrimary: "लोकप्रिय टूल से शुरू करें",
+        ctaSecondary: "FAQ",
+        trust1: "मोबाइल पर चलता है",
+        trust2: "साइनअप नहीं",
+        trust3: "प्राइवेसी-फ्रेंडली",
+        placeholder: "टूल खोजें (जैसे compress, merge, jpg)...",
+        chipAll: "सभी", chipConvert: "कनवर्ट", chipOrganize: "ऑर्गनाइज़", chipSecure: "सिक्योर",
+        toolsTitle: "<span>PDF</span> टूल्स",
+        compress: "PDF कम्प्रेस", dCompress: "PDF का साइज तुरंत कम करें।",
+        merge: "PDF मर्ज", dMerge: "कई PDFs को एक में जोड़ें।",
+        split: "PDF स्प्लिट", dSplit: "पेज निकालें या PDF को हिस्सों में बाँटें।",
+        pdfJpg: "PDF से JPG", dPdfJpg: "PDF पेज को JPG में बदलें।",
+        jpgPdf: "JPG से PDF", dJpgPdf: "JPG इमेज से PDF बनाएं।",
+        wordPdf: "Word से PDF", dWordPdf: "DOCX को आसानी से PDF में बदलें।",
+        pdfWord: "PDF से Word", dPdfWord: "PDF को editable Word में बदलें।",
+        pdfText: "PDF से Text", dPdfText: "PDF से टेक्स्ट निकालें।",
+        protect: "PDF प्रोटेक्ट", dProtect: "PDF में पासवर्ड लगाएं।",
+        unlock: "PDF अनलॉक", dUnlock: "PDF का पासवर्ड हटाएं।",
+        rotate: "PDF रोटेट", dRotate: "PDF पेज को घुमाएं।",
+        organize: "PDF व्यवस्थित करें", dOrganize: "PDF पेज reorder/delete करें।",
+        viewer: "PDF व्यूअर", dViewer: "PDF खोलें और preview करें।",
+        extract: "इमेज निकालें", dExtract: "PDF से सभी images निकालें।",
+        info1t: "प्राइवेसी-फोकस्ड", info1d: "जहाँ संभव हो टूल ब्राउज़र में ही चलता है। अगर कभी अपलोड चाहिए होगा, टूल पेज पर साफ दिखेगा।",
+        info2t: "मोबाइल-फर्स्ट", info2d: "बड़े बटन, साफ लेआउट, और फास्ट लोडिंग।",
+        info3t: "साइनअप नहीं", info3d: "बिना अकाउंट बनाए तुरंत इस्तेमाल करें।",
+        faqQ1: "क्या pdfsajao फ्री है?", faqA1: "हाँ। टूल्स फ्री हैं। बाद में कुछ प्रीमियम फीचर आ सकते हैं, लेकिन फ्री उपयोग रहेगा।",
+        faqQ2: "PDF अपलोड करना सुरक्षित है?", faqA2: "जब टूल ब्राउज़र में चलता है तो फाइल आपके डिवाइस पर रहती है। अगर कभी अपलोड चाहिए होगा, टूल पेज पर साफ दिखेगा।",
+        faqQ3: "सबसे लोकप्रिय टूल कौन से हैं?", faqA3: "Compress PDF और Merge PDF सबसे ज्यादा इस्तेमाल होते हैं।",
+        footer: `© 2025 ${brandName} — फ्री ऑनलाइन PDF टूल्स`,
+        popular: "Popular"
+      },
+
+            bn: {
+        tagline: "দ্রুত • প্রাইভেট • ফ্রি",
+        heroTitle: 'দ্রুত ও নিরাপদ <span class="accent">PDF</span> টুল',
+        heroSubtitle: "PDF কনভার্ট, কমপ্রেস, মার্জ, স্প্লিট এবং ম্যানেজ করুন সহজেই — ১০০% ফ্রি এবং ব্রাউজারেই কাজ করে।",
+        ctaPrimary: "জনপ্রিয় টুল দিয়ে শুরু করুন",
+        ctaSecondary: "FAQ",
+        trust1: "মোবাইলে কাজ করে",
+        trust2: "সাইনআপ লাগে না",
+        trust3: "প্রাইভেসি-ফ্রেন্ডলি",
+        placeholder: "টুল সার্চ করুন (যেমন compress, merge, jpg)...",
+        chipAll: "সব", chipConvert: "কনভার্ট", chipOrganize: "সাজানো", chipSecure: "সিকিউর",
+        toolsTitle: "<span>PDF</span> টুলস",
+        compress: "PDF কমপ্রেস", dCompress: "PDF ফাইলের সাইজ দ্রুত কমান।",
+        merge: "PDF মার্জ", dMerge: "একাধিক PDF একসাথে জোড়া দিন।",
+        split: "PDF স্প্লিট", dSplit: "পেজ বের করুন বা PDF ভাগ করুন।",
+        pdfJpg: "PDF থেকে JPG", dPdfJpg: "PDF পেজকে JPG-তে কনভার্ট করুন।",
+        jpgPdf: "JPG থেকে PDF", dJpgPdf: "JPG ছবি দিয়ে PDF বানান।",
+        wordPdf: "Word থেকে PDF", dWordPdf: "DOCX সহজে PDF করুন।",
+        pdfWord: "PDF থেকে Word", dPdfWord: "PDF কে editable Word এ কনভার্ট করুন।",
+        pdfText: "PDF থেকে টেক্সট", dPdfText: "PDF থেকে টেক্সট বের করুন।",
+        protect: "PDF প্রটেক্ট", dProtect: "PDF এ পাসওয়ার্ড দিন।",
+        unlock: "PDF আনলক", dUnlock: "PDF থেকে পাসওয়ার্ড সরান।",
+        rotate: "PDF রোটেট", dRotate: "PDF পেজ ঘোরান।",
+        organize: "PDF সাজান", dOrganize: "পেজ reorder/delete করুন।",
+        viewer: "PDF ভিউয়ার", dViewer: "PDF খুলে preview করুন।",
+        extract: "ছবি বের করুন", dExtract: "PDF থেকে সব ছবি বের করুন।",
+        info1t: "প্রাইভেসি আগে", info1d: "যেখানে সম্ভব টুল ব্রাউজারেই চলে। ভবিষ্যতে কোনো টুলে আপলোড লাগলে সেটা পরিষ্কারভাবে দেখানো হবে।",
+        info2t: "মোবাইল-ফার্স্ট", info2d: "বড় বাটন, ক্লিন লেআউট, এবং দ্রুত লোডিং।",
+        info3t: "সাইনআপ ছাড়াই", info3d: "অ্যাকাউন্ট ছাড়া সরাসরি টুল ব্যবহার করুন।",
+        faqQ1: "pdfsajao কি ফ্রি?", faqA1: "হ্যাঁ। টুলগুলো ফ্রি। পরে কিছু প্রিমিয়াম ফিচার আসতে পারে, তবে ফ্রি ব্যবহার থাকবে।",
+        faqQ2: "PDF আপলোড করা কি নিরাপদ?", faqA2: "যখন টুল ব্রাউজারে চলে তখন ফাইল আপনার ডিভাইসেই থাকে। যদি কখনও আপলোড দরকার হয়, টুল পেজে পরিষ্কারভাবে দেখাবে।",
+        faqQ3: "সবচেয়ে জনপ্রিয় টুল কোনগুলো?", faqA3: "Compress PDF এবং Merge PDF সাধারণত সবচেয়ে বেশি ব্যবহার হয়।",
+        footer: `© 2025 ${brandName} — ফ্রি অনলাইন PDF টুলস`,
+        popular: "Popular"
+      }
+    };
+
+    function setLanguage(lang){
+      document.documentElement.lang = lang === "bn" ? "bn" : (lang === "hi" ? "hi" : "en");
+
+      document.getElementById("tagline").innerText = langData[lang].tagline;
+      document.getElementById("hero-title").innerHTML = langData[lang].heroTitle;
+      document.getElementById("hero-subtitle").innerText = langData[lang].heroSubtitle;
+      document.getElementById("cta-primary").innerText = langData[lang].ctaPrimary;
+      document.getElementById("cta-secondary").innerText = langData[lang].ctaSecondary;
+
+      document.getElementById("trust-1").innerText = langData[lang].trust1;
+      document.getElementById("trust-2").innerText = langData[lang].trust2;
+      document.getElementById("trust-3").innerText = langData[lang].trust3;
+
+      document.getElementById("tool-search").placeholder = langData[lang].placeholder;
+      document.getElementById("chip-all").innerText = langData[lang].chipAll;
+      document.getElementById("chip-convert").innerText = langData[lang].chipConvert;
+      document.getElementById("chip-organize").innerText = langData[lang].chipOrganize;
+      document.getElementById("chip-secure").innerText = langData[lang].chipSecure;
+
+      document.getElementById("tools-title").innerHTML = langData[lang].toolsTitle;
+
+      document.getElementById("tool-compress").innerText = langData[lang].compress;
+      document.getElementById("desc-compress").innerText = langData[lang].dCompress;
+
+      document.getElementById("tool-merge").innerText = langData[lang].merge;
+      document.getElementById("desc-merge").innerText = langData[lang].dMerge;
+
+      document.getElementById("tool-split").innerText = langData[lang].split;
+      document.getElementById("desc-split").innerText = langData[lang].dSplit;
+
+      document.getElementById("tool-pdf-jpg").innerText = langData[lang].pdfJpg;
+      document.getElementById("desc-pdf-jpg").innerText = langData[lang].dPdfJpg;
+
+      document.getElementById("tool-jpg-pdf").innerText = langData[lang].jpgPdf;
+      document.getElementById("desc-jpg-pdf").innerText = langData[lang].dJpgPdf;
+
+      document.getElementById("tool-word-pdf").innerText = langData[lang].wordPdf;
+      document.getElementById("desc-word-pdf").innerText = langData[lang].dWordPdf;
+
+      document.getElementById("tool-pdf-word").innerText = langData[lang].pdfWord;
+      document.getElementById("desc-pdf-word").innerText = langData[lang].dPdfWord;
+
+      document.getElementById("tool-pdf-text").innerText = langData[lang].pdfText;
+      document.getElementById("desc-pdf-text").innerText = langData[lang].dPdfText;
+
+      document.getElementById("tool-protect").innerText = langData[lang].protect;
+      document.getElementById("desc-protect").innerText = langData[lang].dProtect;
+
+      document.getElementById("tool-unlock").innerText = langData[lang].unlock;
+      document.getElementById("desc-unlock").innerText = langData[lang].dUnlock;
+
+      document.getElementById("tool-rotate").innerText = langData[lang].rotate;
+      document.getElementById("desc-rotate").innerText = langData[lang].dRotate;
+
+      document.getElementById("tool-organize").innerText = langData[lang].organize;
+      document.getElementById("desc-organize").innerText = langData[lang].dOrganize;
+
+      document.getElementById("tool-view").innerText = langData[lang].viewer;
+      document.getElementById("desc-view").innerText = langData[lang].dViewer;
+
+      document.getElementById("tool-extract").innerText = langData[lang].extract;
+      document.getElementById("desc-extract").innerText = langData[lang].dExtract;
+
+      document.getElementById("badge-1").innerText = langData[lang].popular;
+      document.getElementById("badge-2").innerText = langData[lang].popular;
+
+      document.getElementById("info-1-title").innerText = langData[lang].info1t;
+      document.getElementById("info-1-desc").innerText = langData[lang].info1d;
+      document.getElementById("info-2-title").innerText = langData[lang].info2t;
+      document.getElementById("info-2-desc").innerText = langData[lang].info2d;
+      document.getElementById("info-3-title").innerText = langData[lang].info3t;
+      document.getElementById("info-3-desc").innerText = langData[lang].info3d;
+
+      document.getElementById("faq-q1").innerText = langData[lang].faqQ1;
+      document.getElementById("faq-a1").innerText = langData[lang].faqA1;
+      document.getElementById("faq-q2").innerText = langData[lang].faqQ2;
+      document.getElementById("faq-a2").innerText = langData[lang].faqA2;
+      document.getElementById("faq-q3").innerText = langData[lang].faqQ3;
+      document.getElementById("faq-a3").innerText = langData[lang].faqA3;
+
+      document.getElementById("footer-text").innerText = langData[lang].footer;
+
+      document.querySelectorAll(".pill button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("lang-" + lang).classList.add("active");
+
+      try{ localStorage.setItem("pdfsajao_lang", lang); }catch(e){}
+    }
+
+    document.getElementById("lang-en").onclick = () => setLanguage("en");
+    document.getElementById("lang-hi").onclick = () => setLanguage("hi");
+    document.getElementById("lang-bn").onclick = () => setLanguage("bn");
+
+    (function(){
+      let saved = "en";
+      try{ saved = localStorage.getItem("pdfsajao_lang") || "en"; }catch(e){}
+      if(!langData[saved]) saved = "en";
+      setLanguage(saved);
+    })();
+  </script>
+
+</body>
+</html>
