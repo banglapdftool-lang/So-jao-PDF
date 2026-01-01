@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Merge PDF — pdfsajao</title>
+
+  <!-- SEO (UI-তে দেখায় না) -->
+  <meta name="description" content="Merge multiple PDF files into one PDF. Fast, private, mobile-friendly and works in your browser — by pdfsajao." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pdftool-lang.github.io/merge-pdf/" />
+
+  <meta name="theme-color" content="#2563EB" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- pdf-lib (jsDelivr, version pinned) [web:245] -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <style>
+    :root{
+      --accent: #3B82F6;
+      --accent2:#2563EB;
+      --accentSoft: rgba(59,130,246,0.18);
+
+      --bg: #070A12;
+      --bg2:#0B1020;
+
+      --surface: rgba(255,255,255,0.07);
+      --surface2: rgba(255,255,255,0.10);
+      --border: rgba(255,255,255,0.14);
+
+      --text: #F5F7FF;
+      --muted: rgba(245,247,255,0.72);
+
+      --shadow: 0 18px 50px rgba(0,0,0,0.45);
+      --radius: 18px;
+
+      --container: 1100px;
+    }
+
+    [data-theme="light"]{
+      --bg: #F7F8FC;
+      --bg2:#FFFFFF;
+
+      --surface: rgba(10,14,30,0.05);
+      --surface2: rgba(10,14,30,0.07);
+      --border: rgba(10,14,30,0.12);
+
+      --text: #0B1220;
+      --muted: rgba(11,18,32,0.70);
+
+      --shadow: 0 18px 40px rgba(10,14,30,0.14);
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 520px at 14% 10%, var(--accentSoft), transparent 55%),
+        radial-gradient(900px 520px at 80% 25%, rgba(255,255,255,0.10), transparent 60%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a{ color: var(--accent); text-decoration: none; }
+    .container{ max-width: var(--container); margin:0 auto; padding: 0 18px; }
+
+    .header{
+      position: sticky; top:0; z-index:50;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    @media (min-width: 900px){
+      .header{
+        background: rgba(0,0,0,0.20);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      [data-theme="light"] .header{ background: rgba(255,255,255,0.75); }
+    }
+    [data-theme="light"] .header{ background: rgba(255,255,255,0.75); }
+
+    .header-row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .logo-mark{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 25px rgba(59,130,246,0.25);
+      display:flex; align-items:center; justify-content:center;
+      flex: 0 0 auto;
+    }
+    .logo-mark i{ color:#fff; font-size: 16px; }
+    .logo-text{ font-size: 18px; font-weight: 900; line-height: 1.1; }
+    .tag{ margin-top: 2px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+    .header-actions{ display:flex; align-items:center; gap: 10px; flex: 0 0 auto; }
+
+    .pill{
+      display:flex;
+      gap: 6px;
+      padding: 5px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .pill button{
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+      min-height: 34px;
+      opacity: .92;
+      transition: .18s ease;
+      line-height: 1;
+    }
+    .pill button:hover{ background: var(--surface2); opacity: 1; }
+    .pill button.active{ background: var(--accent); color:#fff; opacity:1; }
+    .pill button.active:hover{ background: var(--accent2); }
+
+    .icon-btn{
+      width: 38px;
+      height: 38px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .icon-btn:hover{ background: var(--surface2); transform: translateY(-1px); }
+
+    .hero{ padding: 28px 0 8px; text-align:center; }
+    .hero h1{ margin:0 0 8px; font-size: clamp(22px, 4.8vw, 36px); line-height: 1.12; }
+    .accent{ color: var(--accent); }
+    .hero p{ margin:0 auto; max-width: 860px; color: var(--muted); font-size: 14px; line-height: 1.75; }
+
+    .panel{
+      margin: 16px auto 0;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface2), var(--surface));
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .row{ display:flex; flex-wrap:wrap; gap: 10px; align-items:center; justify-content:center; }
+
+    .file{
+      flex: 1 1 420px;
+      border:1px dashed rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 12px;
+      text-align:left;
+    }
+    [data-theme="light"] .file{ border-color: rgba(10,14,30,0.20); background: rgba(10,14,30,0.04); }
+    .file label{ display:block; font-weight:800; margin-bottom:8px; }
+
+    .btn{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 800;
+      min-height: 44px;
+      transition: .18s ease;
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      justify-content:center;
+    }
+    .btn:hover{ background: var(--surface2); transform: translateY(-1px); }
+    .btn-primary{
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      border-color: rgba(59,130,246,0.55);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(59,130,246,0.22);
+    }
+    .btn:disabled{ opacity: .6; cursor: not-allowed; transform:none; }
+
+    .status{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align:center;
+    }
+
+    footer{
+      margin-top: 26px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 18px 0;
+      text-align:center;
+    }
+    footer p{ margin:0; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container header-row">
+      <a class="brand" href="../index.html" aria-label="pdfsajao home">
+        <span class="logo-mark" aria-hidden="true"><i class="fa fa-file-pdf-o"></i></span>
+        <span>
+          <div class="logo-text">pdfsajao</div>
+          <div class="tag" id="t-tag">Fast • Private • Free</div>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <div class="pill" aria-label="Language switcher">
+          <button id="lang-en" class="active" aria-label="English">EN</button>
+          <button id="lang-hi" aria-label="Hindi">हिंदी</button>
+          <button id="lang-bn" aria-label="Bangla">বাংলা</button>
+        </div>
+
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fa fa-moon-o" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 id="t-title">Merge <span class="accent">PDF</span></h1>
+      <p id="t-sub">Combine multiple PDFs into one file. Files stay in your browser.</p>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <div class="file">
+          <label id="t-upload">Select PDF files (multiple)</label>
+          <input id="pdfFiles" type="file" accept="application/pdf" multiple />
+          <div style="margin-top:8px;color:var(--muted);font-size:12px" id="t-note">
+            Tip: Select files in the order you want to merge.
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="mergeBtn"><i class="fa fa-compress"></i> <span id="t-merge">Merge PDF</span></button>
+        <button class="btn" id="clearBtn"><i class="fa fa-trash"></i> <span id="t-clear">Clear</span></button>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p id="t-footer">© 2025 pdfsajao — Merge PDF</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const { PDFDocument } = PDFLib;
+
+      // Theme
+      const themeBtn = document.getElementById("theme-toggle");
+      function setTheme(t){
+        document.documentElement.setAttribute("data-theme", t);
+        try{ localStorage.setItem("pdfsajao_theme", t); }catch(e){}
+        themeBtn.innerHTML = (t === "light")
+          ? '<i class="fa fa-moon-o" aria-hidden="true"></i>'
+          : '<i class="fa fa-sun-o" aria-hidden="true"></i>';
+      }
+      (function(){
+        let t = "dark";
+        try{ t = localStorage.getItem("pdfsajao_theme") || "dark"; }catch(e){}
+        setTheme(t);
+      })();
+      themeBtn.addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme") || "dark";
+        setTheme(cur === "dark" ? "light" : "dark");
+      });
+
+      // i18n
+      const langData = {
+        en:{
+          tag:"Fast • Private • Free",
+          title:'Merge <span class="accent">PDF</span>',
+          sub:"Combine multiple PDFs into one file. Files stay in your browser.",
+          upload:"Select PDF files (multiple)",
+          note:"Tip: Select files in the order you want to merge.",
+          merge:"Merge PDF",
+          clear:"Clear",
+          ready:"Ready.",
+          working:"Merging…",
+          done:"Done. Download started.",
+          pick:"Please select at least 2 PDF files."
+        },
+        hi:{
+          tag:"तेज़ • प्राइवेट • फ्री",
+          title:'PDF <span class="accent">Merge</span>',
+          sub:"कई PDF को एक PDF में जोड़ें। फाइलें आपके ब्राउज़र में रहती हैं।",
+          upload:"PDF फाइलें चुनें (multiple)",
+          note:"Tip: जिस क्रम में चाहिए, उसी क्रम में फाइल चुनें।",
+          merge:"Merge PDF",
+          clear:"Clear",
+          ready:"Ready.",
+          working:"Merging…",
+          done:"Done. Download started.",
+          pick:"कम से कम 2 PDF फाइल चुनें।"
+        },
+        bn:{
+          tag:"দ্রুত • প্রাইভেট • ফ্রি",
+          title:'PDF <span class="accent">Merge</span>',
+          sub:"একাধিক PDF একসাথে করে একটি PDF বানাও। ফাইল ব্রাউজারেই থাকে।",
+          upload:"PDF ফাইল সিলেক্ট করুন (multiple)",
+          note:"Tip: যে অর্ডারে চান সেই অর্ডারেই ফাইল সিলেক্ট করুন।",
+          merge:"Merge PDF",
+          clear:"Clear",
+          ready:"Ready.",
+          working:"Merging…",
+          done:"Done. Download started.",
+          pick:"কমপক্ষে 2টা PDF ফাইল সিলেক্ট করুন।"
+        }
+      };
+      let currentLang = "en";
+
+      const statusEl = document.getElementById("status");
+
+      function setStatus(msg){ statusEl.textContent = msg; }
+
+      function setLanguage(lang){
+        currentLang = lang;
+        document.documentElement.setAttribute("lang", lang === "bn" ? "bn" : (lang === "hi" ? "hi" : "en"));
+        const t = langData[lang];
+
+        document.getElementById("t-tag").innerText = t.tag;
+        document.getElementById("t-title").innerHTML = t.title;
+        document.getElementById("t-sub").innerText = t.sub;
+        document.getElementById("t-upload").innerText = t.upload;
+        document.getElementById("t-note").innerText = t.note;
+        document.getElementById("t-merge").innerText = t.merge;
+        document.getElementById("t-clear").innerText = t.clear;
+        document.getElementById("t-footer").innerText = "© 2025 pdfsajao — Merge PDF";
+
+        document.querySelectorAll(".pill button").forEach(b => b.classList.remove("active"));
+        document.getElementById("lang-" + lang).classList.add("active");
+
+        setStatus(t.ready);
+        try { localStorage.setItem("pdfsajao_lang", lang); } catch(e) {}
+      }
+
+      document.getElementById("lang-en").onclick = () => setLanguage("en");
+      document.getElementById("lang-hi").onclick = () => setLanguage("hi");
+      document.getElementById("lang-bn").onclick = () => setLanguage("bn");
+
+      (function initLang(){
+        let saved = "en";
+        try { saved = localStorage.getItem("pdfsajao_lang") || "en"; } catch(e) {}
+        if(!langData[saved]) saved = "en";
+        setLanguage(saved);
+      })();
+
+      // Merge
+      const mergeBtn = document.getElementById("mergeBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const fileInput = document.getElementById("pdfFiles");
+
+      function setBusy(b){
+        mergeBtn.disabled = b;
+        clearBtn.disabled = b;
+        fileInput.disabled = b;
+      }
+
+      function downloadBytes(bytes, filename){
+        const blob = new Blob([bytes], { type:"application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      }
+
+      clearBtn.onclick = () => {
+        fileInput.value = "";
+        setStatus(langData[currentLang].ready);
+      };
+
+      mergeBtn.onclick = async () => {
+        const files = fileInput.files;
+        if(!files || files.length < 2) return alert(langData[currentLang].pick);
+
+        setBusy(true);
+        setStatus(langData[currentLang].working);
+
+        try{
+          const mergedPdf = await PDFDocument.create();
+
+          for(const f of files){
+            const buf = await f.arrayBuffer();
+            const pdf = await PDFDocument.load(buf);
+            const copied = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+            copied.forEach(p => mergedPdf.addPage(p));
+          }
+
+          const out = await mergedPdf.save();
+          downloadBytes(out, "merged.pdf");
+          setStatus(langData[currentLang].done);
+        }catch(err){
+          console.error(err);
+          setStatus("Error: " + (err && err.message ? err.message : "Unknown error"));
+        }finally{
+          setBusy(false);
+        }
+      };
+    });
+  </script>
+</body>
+            </html>
